@@ -55,10 +55,10 @@ Kce = zeros(3);
 for i = 1:nelm
    [Ke, fe] = flw2te(ex(i,:),ey(i,:),ep,D,eq);
    Kce = assemKce(ex(i,:),ey(i,:),alpha);
-   
+   Ke = Ke + Kce;
    Ce=plantml(ex(i,:),ey(i,:),rho);                 %Skapar Ce-matrisen från kurshemsidan
     
-    [K, f] = assem(edof(i, :), K, Ke, f, fe);
+   [K, f] = assem(edof(i, :), K, Ke, f, fe);
 end
 
 a = solveq(K,f);
@@ -67,3 +67,8 @@ ed=extract(edof,a);
 colormap(hot);
 fill(ex',ey',ed');
 colorbar;
+%% test
+ex = [0 2 0];
+ey = [0 1 1];
+alpha = 10;
+res = assemKce(ex',ey',alpha)
