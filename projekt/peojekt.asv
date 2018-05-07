@@ -59,7 +59,7 @@ for i = 1:nelm
    [f_b_bot, Kce_bot] = findRV(e,t,p,a_air,T_inf,i,1,T_ref);         %Tar fram randvillkor om elementet vi är på är ett randelement på den "undre" randen
    [f_b_top, Kce_top] = findRV(e,t,p,a_air,T_inf,i,3,T_inf);         %Tar fram randvillkor om elementet vi är på är ett randelement på den "övre" randen
    Ke = Ke + Kce_top + Kce_bot;
-   fe = fe + f_b_bot + f_b_top;
+   %fe = fe + f_b_bot + f_b_top;
    
    [K, f] = assem(edof(i, :), K, Ke, f, fe);
 end
