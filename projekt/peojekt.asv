@@ -31,10 +31,9 @@ T_inf = 25;             %Temperaturen "långt bort"
 T_ref = 50;             %Temperaturen efter tiden t_p = uppstartningstiden
 
 t_p = 10;               %Uppstartningstiden
-    
+
 %Funktion som beskriver temperaturen längs rand efter tiden t
-time = 1;
-f = @(t) (t/t_p).^3.*(6.*(t/t_p).^2-15.*t/t_p+10);
+f = @(tt) (tt/t_p).^3.*(6.*(tt/t_p).^2-15.*tt/t_p+10);
 T_p = (T_ref-T_0)*f(t)+T_0;
 
 
@@ -52,25 +51,58 @@ rho = 7990;             %Densitet för vårt material [Kgm^?3]
 K = zeros(ndof);
 f = zeros(ndof,1);
 Kce = zeros(3);
+a = T_0*ones(ndof,1);
 
 for i = 1:nelm
    [Ke, fe] = flw2te(ex(i,:),ey(i,:),ep,D,eq);  
+   
    %Ce=plantml(ex(i,:),ey(i,:),rho);                                  %Skapar Ce-matrisen från kurshemsidan
-   [f_b_bot, Kce_bot] = findRV(e,t,p,a_air,T_inf,i,1,T_ref);         %Tar fram randvillkor om elementet vi är på är ett randelement på den "undre" randen
-   [f_b_top, Kce_top] = findRV(e,t,p,a_air,T_inf,i,3,T_inf);         %Tar fram randvillkor om elementet vi är på är ett randelement på den "övre" randen
+   [f_b_bot, Kce_bot] = findRV(e,t,p,a_air,i,1,T_ref);         %Tar fram randvillkor om elementet vi är på är ett randelement på den "undre" randen
+   [f_b_top, Kce_top] = findRV(e,t,p,a_air,i,3,T_inf);         %Tar fram randvillkor om elementet vi är på är ett randelement på den "övre" randen
    Ke = Ke + Kce_top + Kce_bot;
-   %fe = fe + f_b_bot + f_b_top;
+   fe = fe + f_b_bot + f_b_top;
    
    [K, f] = assem(edof(i, :), K, Ke, f, fe);
 end
 
-a = solveq(K,f);
+a = a + solveq(K,f);
 
 ed=extract(edof,a);
 colormap(hot);
 fill(ex',ey',ed');
 colorbar;
-%% test
-N=[1 0 1]
+%% Numdiff
+M = 100;
+tend = 10;
+dt =tend/10;
+tt = linspace(0,tend, M +1);
 
+for j = 1:M
+    
+    K = zeros(ndof);
+    f = zeros(ndof,1);
+    Kce = zeros(3);
+    a = T_0*ones(ndof,1);
 
+    for i = 1:nelm
+        [Ke, fe] = flw2te(ex(i,:),ey(i,:),ep,D,eq);  
+   
+        %Ce=plantml(ex(i,:),ey(i,:),rho);                                  %Skapar Ce-matrisen från kurshemsidan
+        [f_b_bot, Kce_bot] = findRV(e,t,p,a_air,i,1,T_ref);         %Tar fram randvillkor om elementet vi är på är ett randelement på den "undre" randen
+        [f_b_top, Kce_top] = findRV(e,t,p,a_air,i,3,T_inf);         %Tar fram randvillkor om elementet vi är på är ett randelement på den "övre" randen
+        Ke = Ke + Kce_top + Kce_bot;
+        fe = fe + f_b_bot + f_b_top;
+   
+        [K, f] = assem(edof(i, :), K, Ke, f, fe);
+    end
+
+    a = a + solveq(K,f);
+    a = anew(a,f,C,K,dt);
+    
+    
+   
+    ed=extract(edof,a);
+    colormap(hot);
+     imagesc(fill(ex',ey',ed'));
+    colorbar;
+end

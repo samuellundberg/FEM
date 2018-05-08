@@ -1,4 +1,4 @@
-function [f_b, Kce] = findRV(e, t, p, a_air, T_inf, t_index ,rand, randvillkor)
+function [f_b, Kce] = findRV(e, t, p, a_air, t_index ,rand, randvillkor)
 %-------------------------------------------------------------
 %  Beräknar f_b om elementet på index t_index i t är ett randelement.
 %  Deräknas integralen
@@ -23,7 +23,7 @@ for i = 1:length(e)
            p1 = p(:,e(1,i));
            p2 = p(:,e(2,i));
            Length=pdist([p1 p2]);
-           f_b = Length*a_air*T_inf * Ne * randvillkor;
+           f_b = Length*a_air* randvillkor* Ne;
            
            Kce = Ne*Ne'*Length*a_air;
        end
