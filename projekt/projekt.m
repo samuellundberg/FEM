@@ -1,4 +1,4 @@
-%% geometrin
+%% geometri & konstanter
 mesh = load('mesh1.mat');    %Laddar den sparade genomerin av en rektangel
 e = mesh.e;                  %Randen        (edges)
 p = mesh.p;                  %Noderna       (points)
@@ -6,11 +6,24 @@ t = mesh.t;                  %Elementen     (triangels)
 [m,n] = size(p);
 %allokerar vektorer f?r randvilkor
 bc_lower = [];
+bc_upper = [];
+bc_left = [];
+bc_right = [];
 for l = 1:n
-    if p(2,l) == -1.5       %fr?n labben   
+    if p(2,l) == -1.5         
         bc_lower = [bc_lower; l, 0];
     end
+    if p(2,l) == 1.5
+        bc_upper = [bc_upper; l, 0];
+    end
+    if p(1,l) == -15.0
+        bc_left = [bc_left; l, 0];
+    end
+    if p(1,l) == 15.0
+        bc_right = [bc_right; l, 0];
+    end
 end
+
 %Boj balken
 for i = 1:n
     p(2,i)= p(2,i)+(-6.5*sin(pi/15*p(1,i)));
@@ -46,14 +59,14 @@ rho = 7990;             %Densitet f?r v?rt material [Kgm^?3]
 E = 1.93*10^11;          %youngs modulus
 v = 0.25;                %poissons ratio
 cp = 500;                %specifik v?rmekapicitet
-%% Station?ra l?sning
+%% Stationary solution
 K = zeros(ndof);
 Kc = zeros(ndof);
 fb = zeros(ndof,1);
 bc_lower(:,2) = T_ref;
 D=D2;
 for i = 1:nelm
-    Ke = flw2te(ex(i,:),ey(i,:),ep,D);  %ska detta f ens vara med?
+    Ke = flw2te(ex(i,:),ey(i,:),ep,D);
     K = assem(edof(i, :), K, Ke);
     [f_b_top, Kce_top] = findRV(e, t, p, a_air, i, 3, T_0);
     [Kc, fb] = assem(edof(i, :), Kc, Kce_top, fb, f_b_top);
@@ -92,7 +105,7 @@ for j = 1:M
     end
     K = K + Kc;
     f = fb;
-    %g?r divisionen mha solveq ist f?r anew f?r att f? hj?lp med RV
+
     a = solveq(C+K*dt, C*a + f*dt, bc_lower);
     if(tt(j) == 2.5 ||tt(j) == 5 ||tt(j) == 7.5) 
         figure
@@ -108,7 +121,8 @@ ep = [2, 1];
 D = D3;              
 dT = sum(statT)/ndof-T_0;    %medeltemperaturf?r?ndringen, bra formel enligt Matias
 epsilon0 = alpha*dT*[1 1 0]';   %formel kap12, plain strain
-
+bc_left(:,2) = 0;             %sitter fast i kanterna
+bc_right(:,2) = 0;
 K = zeros(2*ndof);            %stiffnes,      plante.m
 fb = zeros(2*ndof,1);         %kraft p? rand, r?kna ut sj?lv..
 fl = zeros(2*ndof,1);         %last, fb=0 d? eq=0!
@@ -130,7 +144,8 @@ for i = 1:nelm
     [K, f0] = assem(edof_wide(i, :), K, Ke, f0, fe0);
 end
 f=f0;
-u = solveq(K, f);  
+bc = [bc_left; bc_right];
+u = solveq(K, f, bc);  
 ed=extract(edof,u);
 fill(ex',ey',ed');
 colorbar;
