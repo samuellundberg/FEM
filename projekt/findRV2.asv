@@ -22,22 +22,26 @@ for i = 1:length(e)
            p2 = p(:,e(2,i));
            Length=sqrt((p1(1,1)-p2(1,1))^2+(p1(2,1)-p2(2,1))^2);
            norm = [p2(2)-p1(2); -(p2(1)-p1(1))]/Length;
-           if (norm(2)>0)
-               norm = -norm; 
-           end
-           presure_xy = presure * Length * norm; 
+              if (norm(2)>0)
+                  norm = -norm; 
+              end
+                presure = presure * Length * norm; 
        end
-       if (rand == 1)
-           Ne = isBoundary2(point_1, point_2, point_3,e(1,i),e(2,i));
+           if (rand == 1)
+               Ne = isBoundary2(point_1, point_2, point_3,e(1,i),e(2,i));
            p1 = p(:,e(1,i));
            p2 = p(:,e(2,i));
            Length=sqrt((p1(1,1)-p2(1,1))^2+(p1(2,1)-p2(2,1))^2);
-           norm = [-(p2(2)-p1(2)); (p2(1)-p1(1))]/Length;
-           if (norm(2)<0)
-               norm = -norm; 
+               norm = [-(p2(2)-p1(2)); (p2(1)-p1(1))]/Length;
+               if (norm(2)<0)
+                   norm = -norm; 
+                end
+                presure = presure  * Length * norm; 
            end
-           presure_xy = presure  * Length * norm; 
-        end
-        f_b = Length * Ne * presure_xy / 2; 
-end
+           f_b = Length * Ne * presure / 2;
+           %Kce = Ne*Ne'*Length*a_air/s2;   
+           
+       end
+    end
+
 end
