@@ -1,5 +1,5 @@
 function [a, Ne, Ne2] = isBoundary(point_1, point_2, point_3, Bp1, Bp2)
-%Jämför om någon av punkterna p1 p2 p3 överrensstämmer med 
+%Jämför om n?gon av punkterna p1 p2 p3 överrensstämmer med 
 %Randpunkterna Bp1 och Bp2
 Ne2= zeros(3);
 if(point_1 == Bp1 && point_2 == Bp2)
@@ -34,4 +34,3 @@ end
 
 
 end
-

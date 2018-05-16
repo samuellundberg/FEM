@@ -17,18 +17,25 @@ fb = zeros(3,1);
 Kce = zeros(3);
 %det vi kallar Ne ?r inte Ne egentligen!
 for i = 1:length(e)
-   if (e(5,i) == rand)
-       [true ,Ne, Ne2] = isBoundary(point_1, point_2, point_3,e(1,i),e(2,i));
-       if(true == 1)
-           p1 = p(:,e(1,i));
-           p2 = p(:,e(2,i));
-           Length=sqrt((p1(1,1)-p2(1,1)).^2+(p1(2,1)-p2(2,1)).^2);
-           %Length=pdist([p1 p2]);
-           s1 = sum(Ne);
-           s2 = sum(sum(Ne*Ne'));         
-           fb = Length * a_air * T_inf * Ne /s1;
-           Kce = Ne2*Length*a_air/s2;
-       end
-    end
+   if (e(5,i) == 3)
+        [a, Ne, Ne2] = isBoundary(point_1, point_2, point_3, e(1,i), e(2,i));
+        if (a == 1)
+            p1 = p(:,e(1,i));
+            p2 = p(:,e(2,i));
+            Length=sqrt((p1(1,1)-p2(1,1)).^2+(p1(2,1)-p2(2,1)).^2);           
+%             s1 = sum(Ne);
+%             s2 = sum(sum(Ne2));
+            fb = Length * a_air * T_inf * Ne /2;
+            Kce = Ne2 * Length * a_air /6;
+            if (isequal(p1,[0.015;0.0015]) || isequal(p2,[0.015;0.0015]))
+               fb = Length * a_air * T_inf * [2;1;0] /2;
+            end
+            if (isequal(p1,[-0.015;0.0015]) || isequal(p2,[-0.015;0.0015]))
+               fb = Length * a_air * T_inf * [2;1;0] /2; 
+            end
+
+        end
+   end
+end
 
 end

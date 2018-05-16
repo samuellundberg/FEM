@@ -1,0 +1,33 @@
+function [Fbc, Kce] = fbcKec(fbvec, index, a_air, T_inf)
+%UNTITLED6 Summary of this function goes here
+%   Detailed explanation goes here
+form = fbvec([1 2 3], index);
+if(form(1)~=0 || form(2)~=0  || form(3)~=0 )
+    
+    
+    Length=sqrt((p1(1,1)-p2(1,1)).^2+(p1(2,1)-p2(2,1)).^2); 
+    
+    if (form(3)==0)
+        p1=[p(1,t(1, index)),p(2,t(1, index))];
+        p2=[p(1,t(2, index)),p(2,t(2, index))];
+        Length=sqrt((p1(1,1)-p2(1,1)).^2+(p1(2,1)-p2(2,1)).^2); 
+        
+        form2 = [2 1 0; 1 2 0; 0 0 0];
+    elseif(form(2) == 0)
+        p1=[p(1,t(1, index)),p(2,t(1, index))];
+        p2=[p(1,t(3, index)),p(2,t(3, index))];
+        Length=sqrt((p1(1,1)-p2(1,1)).^2+(p1(2,1)-p2(2,1)).^2); 
+        
+        form2 = [2 0 1; 0 0 0; 1 0 2];
+    else 
+        p1=[p(1,t(2, index)),p(2,t(2, index))];
+        p2=[p(1,t(3, index)),p(2,t(2, index))];
+        Length=sqrt((p1(1,1)-p2(1,1)).^2+(p1(2,1)-p2(2,1)).^2); 
+        
+        form2 = [0 0 0; 0 2 1; 0 1 2];
+    end
+    Fbc = Length * a_air * T_inf * form /2;
+    Kce = form2 * Length * a_air /6;  
+end
+end
+
