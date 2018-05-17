@@ -104,8 +104,9 @@ a = T_0*ones(ndof,1);                        %Allocates initial temperatur
 %Loops through the time stepping
 for j = 1:M
     K = zeros(ndof);                         %Allocates K-matrix
-    C = zeros(ndof);                         %Allocates f-vector
-
+    C = zeros(ndof);                         %Allocates C-matrix
+    f = zeros(ndof,1);                       %Allocates f-vector
+    
     %Function that calcutaes T_p = (T_ref-T_0)f(t)+T_0
     %where f(t) = (tt/t_p)^3*(6*(tt/t_p)^2-15*tt/t_p+10);
     cur_temp = T_p(tt(j)+dt, T_ref, T_0,t_p);%Sets the current temperature
