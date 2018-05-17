@@ -34,8 +34,8 @@ fbvec_bot = zeros(3,length(t(1,:)));
 
 %Skapar matris med formfunktion för element i om den ligger på övre randen
 for i = 1:length(t(1,:))
-    fbvec_top = assemForm(t,p,i,fbvec_top,1);
-    fbvec_bot = assemForm(t,p,i,fbvec_top,2);
+    fbvec_top = assemForm(t,p,i,fbvec_top,3);
+    fbvec_bot = assemForm(t,p,i,fbvec_bot,1);
 end
 
 %Boj balken
@@ -54,7 +54,7 @@ ndof=length(p);                             %Ber?knar antalet frihetsgrader
 [ex,ey]=coordxtr(edof,coord,(1:ndof)',3);   %Tar fram x- och ykoordinater f?r elementen
 
 %Plottar genometrin
-eldraw2(ex,ey,[1 2 0]);
+eldraw2(ex,ey,[1 2 0],edof(:,1));
 
 % Parametrar som kommer anv?ndas under projektet
 ep = 1;                                      %Tjocklek av geometrin
@@ -84,7 +84,7 @@ bc_lower(:,2) = T_ref;                       %Puts the boundaryconditions at the
 %assembelse them into K and f
 for i = 1:nelm
     Ke = flw2te(ex(i,:),ey(i,:),ep,D); 
-    [fb_top, Kce_top] = fbcKec(p, t, fbvec_top, i, a_air, T_inf);
+    [fb_top, Kce_top] = assemFbcKec(p, t, fbvec_top, i, a_air, T_inf);
     Ke = Ke + Kce_top;
     [K, f] = assem(edof(i, :), K, Ke, f, fb_top);
 end
@@ -118,7 +118,7 @@ for j = 1:M
         Ke = flw2te(ex(i,:), ey(i,:), ep, D);       
         Ce = plantml(ex(i,:), ey(i,:), cp*rho);    
         C = assem(edof(i,:),C,Ce);
-        [fb_top, Kce_top] = fbcKec(p, t, fbvec_top, i, a_air, T_inf); 
+        [fb_top, Kce_top] = assemFbcKec(p, t, fbvec_top, i, a_air, T_inf); 
         Ke = Ke + Kce_top;
         [K, f] = assem(edof(i, :), K, Ke, f, fb_top);
     end
@@ -151,7 +151,7 @@ f =  zeros(2*ndof,1);                       %Allocates f0-vector
 c1 = [edof(:,2)*2 - 1, edof(:,2)*2];
 c2 = [edof(:,3)*2 - 1, edof(:,3)*2];
 c3 = [edof(:,4)*2 - 1, edof(:,4)*2];
-edof_wide = [edof(:,1), c1, c2, c3];        %Nanes new edof with 2 degrees of freedom at every node edof_wide
+edof_wide = [edof(:,1), c1, c2, c3];        %Names new edof with 2 degrees of freedom at every node edof_wide
 
 %Loops over every element and calculates the matrices/vectors Ke, fe, fb, the
 %mean stationary temperature, calculates epsilon0 and assembelse them into K and f
@@ -160,8 +160,8 @@ for i = 1:nelm
     dT = (statT(t(1,i))+statT(t(2,i))+statT(t(3,i)))/3 - T_0;
     epsilon0 = alpha*dT*[1 1 0]';
     fe = plantf(ex(i,:), ey(i,:), ep, (D_hooke([1 2 4], [1 2 4])*epsilon0)');
-    fb_top = findRV2(e, t, p, p_air, i ,3);%SKRIV OM DENNA FUNKTIONEN SÅ DEN ÄR PÅ SAMMA FORMAT SOM ÖVER
-    fb_bot = findRV2(e, t, p, p_ref, i ,1);
+    fb_top = assemFbcStrain(p, t, fbvec_top, i, p_air, 3);
+    fb_bot = assemFbcStrain(p, t, fbvec_bot, i, p_ref, 1);
     fe = fe + fb_top + fb_bot;
     [K, f] = assem(edof_wide(i, :), K, Ke, f, fe);
 end
@@ -191,9 +191,9 @@ end
 
 figure(1)
 ed1 = extract(edof, Seff_nod);
-fill(ex',ey',ed1')
+fill(ex',ey',ed1');
 colorbar;
 
 figure(2)
 eldraw2(ex,ey, [1 2 1]);
-eldisp2(ex,ey, ed, [1 4 1], 100);
+eldisp2(ex,ey, ed, [1 4 1], 10);

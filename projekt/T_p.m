@@ -6,4 +6,3 @@ else
     out = (T_ref-T_0)*f_t+T_0;
 end
 end
-
